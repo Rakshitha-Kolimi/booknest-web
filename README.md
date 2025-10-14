@@ -27,10 +27,10 @@ This project was scaffolded to interface with the BookNest-Platform backend. Adj
 Backend routes and CORS
 
 - This frontend expects the BookNest-Platform backend routes:
-   - GET /books -> list books
-   - GET /book/:id -> get single book
-   - POST /books -> create book
-   - PUT /book/:id -> update book
-   - DELETE /book/:id -> delete book
+  - GET /books -> list books
+  - GET /book/:id -> get single book
+  - POST /books -> create book
+  - PUT /book/:id -> update book
+  - DELETE /book/:id -> delete book
 
 - Make sure the backend enables CORS for the frontend origin (or use a permissive CORS during local development) so the browser can call the API.
