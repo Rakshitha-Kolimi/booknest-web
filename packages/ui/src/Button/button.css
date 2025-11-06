@@ -1,0 +1,22 @@
+/* button.css */
+.btn {
+  padding: 4px;
+  border: none;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* only for login */
+.btn-login {
+  width: 5rem;
+  background-color: orange;
+  color: white;
+  font-size: 20px;
+}
+
+.btn-login:hover {
+  background-color: darkorange;
+}

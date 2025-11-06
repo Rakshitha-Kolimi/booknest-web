@@ -1,12 +1,12 @@
 import React from 'react'
 import { Link, Route, Routes } from 'react-router-dom'
 
-import BookDetail from './pages/BookDetail'
-import Books from './pages/Books'
-import Home from './pages/Home'
-import Login from './pages/Login'
-import Profile from './pages/Profile'
-import Register from './pages/Register'
+import BookDetail from '../src/Pages/BookDetail'
+import Books from '../src/Pages/Books'
+import Home from '../src/Pages/Home'
+import Login from '../src/Pages/Login'
+import Profile from '../src/Pages/Profile'
+import Register from '../src/Pages/Register'
 
 export default function App() {
   return (

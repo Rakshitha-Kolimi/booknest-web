@@ -15,7 +15,13 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vite/client"]
-  },
-  "include": ["src"]
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@booknest/ui": ["packages/ui/src"],
+      "@booknest/services": ["packages/services/src"],
+      "@booknest/utils": ["packages/utils/src"],
+      "@booknest/pages": ["packages/pages/src"]
+    }
+  }
 }
