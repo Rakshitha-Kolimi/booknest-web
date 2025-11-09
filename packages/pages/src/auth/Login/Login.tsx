@@ -1,4 +1,4 @@
-import './login.css'
+import '../common/index.css'
 
 import { Button, Header } from '@booknest/ui'
 import React, { useEffect } from 'react'
@@ -23,7 +23,7 @@ export default function Login(): React.ReactElement {
           <h3 className="log-in-text">Log in</h3>
           <p className="sign-up-text">
             Don&apos;t have an account?{' '}
-            <Link to="" className="sign-up-link">
+            <Link to="/register" className="sign-up-link">
               Sign up
             </Link>
           </p>

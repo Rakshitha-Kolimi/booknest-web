@@ -1,4 +1,4 @@
-import { Login } from '@booknest/pages'
+import { Login, Register } from '@booknest/pages'
 import { Header } from '@booknest/ui'
 import { safeLocalStorage } from '@booknest/utils'
 import React from 'react'
@@ -8,7 +8,6 @@ import BookDetail from '../src/Pages/BookDetail'
 import Books from '../src/Pages/Books'
 import Home from '../src/Pages/Home'
 import Profile from '../src/Pages/Profile'
-import Register from '../src/Pages/Register'
 import PrivateRoute from './routes/PrivateRoute'
 import PublicRoute from './routes/PublicRoute'
 
