@@ -39,7 +39,9 @@ export default function Login(): React.ReactElement {
             placeholder="Password"
             className="log-in-input"
           />
-          <div className="forgot-password-text">Forgot Password?</div>
+          <Link className="forgot-password-text" to="/forgot-password">
+            Forgot Password?
+          </Link>
           <Button label="Login" className="btn-login" />
         </form>
       </div>

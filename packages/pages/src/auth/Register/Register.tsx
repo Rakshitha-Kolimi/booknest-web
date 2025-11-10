@@ -55,7 +55,6 @@ export default function Register(): React.ReactElement {
             placeholder="Confirm password"
             className="log-in-input"
           />
-          <div className="forgot-password-text">Forgot Password?</div>
           <Button label="Sign Up" className="btn-login" />
           <p className="caption-text">
             By signing up, you agree to our{' '}

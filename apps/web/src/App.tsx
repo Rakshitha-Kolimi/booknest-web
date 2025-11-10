@@ -1,4 +1,9 @@
-import { Login, Register } from '@booknest/pages'
+import {
+  ForgotPassword,
+  Login,
+  Register,
+  ResetSuccessful,
+} from '@booknest/pages'
 import { Header } from '@booknest/ui'
 import { safeLocalStorage } from '@booknest/utils'
 import React from 'react'
@@ -39,6 +44,14 @@ export default function App() {
           <Route
             path="/register"
             element={<PublicRoute element={<Register />} />}
+          />
+          <Route
+            path="/forgot-password"
+            element={<PublicRoute element={<ForgotPassword />} />}
+          />
+          <Route
+            path="/reset-successful"
+            element={<PublicRoute element={<ResetSuccessful />} />}
           />
 
           <Route path="/" element={<PrivateRoute element={<Home />} />} />
