@@ -16,6 +16,7 @@ import {
   useUpdateBookMutation,
   useUpdateCategoryMutation,
   useUpdatePublisherMutation,
+  useUploadBookImageMutation,
 } from '../query/hooks'
 
 import {
@@ -74,12 +75,15 @@ export default function AdminBooks(): React.ReactElement {
   const [categoryName, setCategoryName] = useState('')
   const [authorSearch, setAuthorSearch] = useState('')
   const [publisherSearch, setPublisherSearch] = useState('')
+  const [selectedBookImage, setSelectedBookImage] = useState<File | null>(null)
+  const [bookImageInputKey, setBookImageInputKey] = useState(0)
 
   // Call query functions and mutations before computing filtered datasets.
   const catalogQuery = useAdminCatalogQuery()
   const createBookMutation = useCreateBookMutation()
   const updateBookMutation = useUpdateBookMutation()
   const deleteBookMutation = useDeleteBookMutation()
+  const uploadBookImageMutation = useUploadBookImageMutation()
   const createAuthorMutation = useCreateAuthorMutation()
   const updateAuthorMutation = useUpdateAuthorMutation()
   const deleteAuthorMutation = useDeleteAuthorMutation()
@@ -98,6 +102,7 @@ export default function AdminBooks(): React.ReactElement {
     createBookMutation.isPending ||
     updateBookMutation.isPending ||
     deleteBookMutation.isPending ||
+    uploadBookImageMutation.isPending ||
     createAuthorMutation.isPending ||
     updateAuthorMutation.isPending ||
     deleteAuthorMutation.isPending ||
@@ -118,52 +123,57 @@ export default function AdminBooks(): React.ReactElement {
               deleteBookMutation.error,
               'Failed to delete book'
             )
-          : createAuthorMutation.isError
+          : uploadBookImageMutation.isError
             ? getQueryErrorMessage(
-                createAuthorMutation.error,
-                'Failed to save author'
+                uploadBookImageMutation.error,
+                'Failed to upload book image'
               )
-            : updateAuthorMutation.isError
+            : createAuthorMutation.isError
               ? getQueryErrorMessage(
-                  updateAuthorMutation.error,
+                  createAuthorMutation.error,
                   'Failed to save author'
                 )
-              : deleteAuthorMutation.isError
+              : updateAuthorMutation.isError
                 ? getQueryErrorMessage(
-                    deleteAuthorMutation.error,
-                    'Failed to delete author'
+                    updateAuthorMutation.error,
+                    'Failed to save author'
                   )
-                : createPublisherMutation.isError
+                : deleteAuthorMutation.isError
                   ? getQueryErrorMessage(
-                      createPublisherMutation.error,
-                      'Failed to save publisher'
+                      deleteAuthorMutation.error,
+                      'Failed to delete author'
                     )
-                  : updatePublisherMutation.isError
+                  : createPublisherMutation.isError
                     ? getQueryErrorMessage(
-                        updatePublisherMutation.error,
+                        createPublisherMutation.error,
                         'Failed to save publisher'
                       )
-                    : deletePublisherMutation.isError
+                    : updatePublisherMutation.isError
                       ? getQueryErrorMessage(
-                          deletePublisherMutation.error,
-                          'Failed to delete publisher'
+                          updatePublisherMutation.error,
+                          'Failed to save publisher'
                         )
-                      : createCategoryMutation.isError
+                      : deletePublisherMutation.isError
                         ? getQueryErrorMessage(
-                            createCategoryMutation.error,
-                            'Failed to save category'
+                            deletePublisherMutation.error,
+                            'Failed to delete publisher'
                           )
-                        : updateCategoryMutation.isError
+                        : createCategoryMutation.isError
                           ? getQueryErrorMessage(
-                              updateCategoryMutation.error,
+                              createCategoryMutation.error,
                               'Failed to save category'
                             )
-                          : deleteCategoryMutation.isError
+                          : updateCategoryMutation.isError
                             ? getQueryErrorMessage(
-                                deleteCategoryMutation.error,
-                                'Failed to delete category'
+                                updateCategoryMutation.error,
+                                'Failed to save category'
                               )
-                            : ''
+                            : deleteCategoryMutation.isError
+                              ? getQueryErrorMessage(
+                                  deleteCategoryMutation.error,
+                                  'Failed to delete category'
+                                )
+                              : ''
 
   const filteredAuthors = useMemo(() => {
     const keyword = authorSearch.trim().toLowerCase()
@@ -209,6 +219,8 @@ export default function AdminBooks(): React.ReactElement {
     setBookForm(initialBookForm)
     setPublisherName('')
     setEditingBookId('')
+    setSelectedBookImage(null)
+    setBookImageInputKey((current) => current + 1)
   }
 
   const resetAuthorForm = () => {
@@ -250,13 +262,16 @@ export default function AdminBooks(): React.ReactElement {
     }
 
     try {
+      const uploadedImageURL = selectedBookImage
+        ? await uploadBookImageMutation.mutateAsync(selectedBookImage)
+        : bookForm.image_url
       const payload: BookInput = {
         ...bookForm,
         author_id: selectedAuthor.id,
         author_name: selectedAuthor.name,
         publisher_id: selectedPublisher.id,
         category_ids: bookForm.category_ids || [],
-        image_url: bookForm.image_url || undefined,
+        image_url: uploadedImageURL || undefined,
         isbn: bookForm.isbn || undefined,
       }
       if (editingBookId) {
@@ -369,6 +384,8 @@ export default function AdminBooks(): React.ReactElement {
       book?.author?.name || authorNameById.get(book.author_id) || ''
     setTab('books')
     setEditingBookId(book.id)
+    setSelectedBookImage(null)
+    setBookImageInputKey((current) => current + 1)
     setBookForm({
       name: book.name,
       author_name: resolvedAuthorName,
@@ -621,14 +638,34 @@ export default function AdminBooks(): React.ReactElement {
                   placeholder="ISBN (optional)"
                   className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
                 />
-                <input
-                  value={bookForm.image_url || ''}
-                  onChange={(event) =>
-                    setBookForm({ ...bookForm, image_url: event.target.value })
-                  }
-                  placeholder="Image URL (optional)"
-                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm md:col-span-2"
-                />
+                <div className="space-y-2 md:col-span-2">
+                  <input
+                    key={bookImageInputKey}
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => {
+                      const image = event.target.files?.[0] ?? null
+                      setSelectedBookImage(image)
+                    }}
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-zinc-900 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white"
+                  />
+                  {(selectedBookImage || bookForm.image_url) && (
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-600">
+                      {bookForm.image_url && !selectedBookImage && (
+                        <img
+                          src={bookForm.image_url}
+                          alt=""
+                          className="h-16 w-12 rounded border border-zinc-200 object-cover"
+                        />
+                      )}
+                      <span>
+                        {selectedBookImage
+                          ? selectedBookImage.name
+                          : bookForm.image_url}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <textarea
                   value={bookForm.description}
                   onChange={(event) =>

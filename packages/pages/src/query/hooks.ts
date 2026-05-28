@@ -32,6 +32,7 @@ import {
   updateCartItem,
   updateCategory,
   updatePublisher,
+  uploadBookImage,
   upsertBookReview,
   type AuthorInput,
   type BookInput,
@@ -382,6 +383,12 @@ export function useDeleteBookMutation() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminCatalog })
       void queryClient.invalidateQueries({ queryKey: ['books'] })
     },
+  })
+}
+
+export function useUploadBookImageMutation() {
+  return useMutation({
+    mutationFn: (image: File) => uploadBookImage(image),
   })
 }
 
