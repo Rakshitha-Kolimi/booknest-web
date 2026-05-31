@@ -213,6 +213,15 @@ export default function BookDetail(): React.ReactElement {
             {book.description || 'No description available for this book.'}
           </p>
 
+          <div className="mt-5 rounded-xl bg-zinc-50 p-4 ring-1 ring-zinc-200">
+            <h2 className="text-sm font-semibold text-zinc-900">Summary</h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-700">
+              {book.summary?.trim()
+                ? book.summary
+                : 'Summary not available for this book yet.'}
+            </p>
+          </div>
+
           {!isAdmin && (
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <label

@@ -20,6 +20,7 @@ export type Book = {
   image_url?: string | null
   is_active: boolean
   description: string
+  summary: string
   isbn?: string | null
   price: number
   discount_percentage: number
