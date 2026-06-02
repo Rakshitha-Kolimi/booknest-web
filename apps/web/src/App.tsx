@@ -30,6 +30,8 @@ import {
   useNavigate,
 } from 'react-router-dom'
 
+import { GlobalSearch } from './GlobalSearch'
+
 export default function App() {
   const location = useLocation()
   const role = getRole()
@@ -67,6 +69,7 @@ export default function App() {
         <header className="bn-header sticky top-0 z-20">
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4">
             <Header />
+            {isAuthenticated && <GlobalSearch />}
             {isAuthenticated && (
               <nav className="flex items-center gap-4">
                 <NavLink to="/" className="app-link">

@@ -168,8 +168,9 @@ export default function Home(): React.ReactElement {
 
                     {book.average_rating > 0 && (
                       <p className="mt-1 text-xs text-zinc-500">
-                        ★ {book.average_rating.toFixed(1)} · {book.total_reviews}{' '}
-                        review{book.total_reviews === 1 ? '' : 's'}
+                        ★ {book.average_rating.toFixed(1)} ·{' '}
+                        {book.total_reviews} review
+                        {book.total_reviews === 1 ? '' : 's'}
                       </p>
                     )}
                   </Link>
@@ -178,11 +179,12 @@ export default function Home(): React.ReactElement {
             </div>
           )}
 
-          {!recLoading && (!recommendations || recommendations.length === 0) && (
-            <p className="text-sm text-zinc-500">
-              Complete your first order to get personalised recommendations.
-            </p>
-          )}
+          {!recLoading &&
+            (!recommendations || recommendations.length === 0) && (
+              <p className="text-sm text-zinc-500">
+                Complete your first order to get personalised recommendations.
+              </p>
+            )}
         </section>
       )}
     </section>

@@ -32,20 +32,16 @@ export default function Books(): React.ReactElement {
   const [currentCursor, setCurrentCursor] = useState('')
   const [total, setTotal] = useState(0)
   const [hasMore, setHasMore] = useState(false)
-  const [searchInput, setSearchInput] = useState('')
-  const [appliedSearch, setAppliedSearch] = useState('')
-
   const params = useMemo<ListBooksQueryParams>(
     () => ({
       limit: PAGE_SIZE,
-      search: appliedSearch || undefined,
       ...(mode === 'offset'
         ? { offset }
         : currentCursor
           ? { cursor: currentCursor }
           : {}),
     }),
-    [appliedSearch, currentCursor, mode, offset]
+    [currentCursor, mode, offset]
   )
 
   // Call query functions after the pagination and search inputs are ready.
@@ -67,29 +63,6 @@ export default function Books(): React.ReactElement {
     setHasMore(booksQuery.data?.has_more ?? false)
     setNextCursor(booksQuery.data?.next_cursor || '')
   }, [booksQuery.data])
-
-  useEffect(() => {
-    // Debounce search updates so we do not refetch on every keystroke.
-    const timer = window.setTimeout(() => {
-      const nextSearch = searchInput.trim()
-      setOffset(0)
-      setCurrentCursor('')
-      setCursorStack([])
-      setAppliedSearch(nextSearch)
-    }, 300)
-
-    return () => {
-      window.clearTimeout(timer)
-    }
-  }, [searchInput])
-
-  const onResetSearch = () => {
-    setSearchInput('')
-    setAppliedSearch('')
-    setOffset(0)
-    setCurrentCursor('')
-    setCursorStack([])
-  }
 
   const handleAddToCart = async (bookId: string) => {
     try {
@@ -148,24 +121,6 @@ export default function Books(): React.ReactElement {
           )}
         </div>
       </header>
-
-      <div className="bn-card-solid flex flex-col gap-3 rounded-xl p-4 md:flex-row md:items-center">
-        <input
-          value={searchInput}
-          onChange={(event) => setSearchInput(event.target.value)}
-          placeholder="Search by ISBN, book name, author name, publisher name, category name"
-          className="bn-input w-full px-3 py-2 text-sm"
-        />
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="bn-button px-3 py-2 text-sm"
-            onClick={onResetSearch}
-          >
-            Reset
-          </button>
-        </div>
-      </div>
 
       {error && (
         <div className="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">

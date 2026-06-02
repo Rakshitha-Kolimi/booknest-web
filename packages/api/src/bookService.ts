@@ -142,3 +142,12 @@ export async function deleteBook(id: string): Promise<void> {
 export async function getRecommendations(limit = 4): Promise<Book[]> {
   return getData<Book[]>('/books/recommend', { params: { limit } })
 }
+
+export async function semanticSearch(
+  query: string,
+  limit = 10
+): Promise<Book[]> {
+  return getData<Book[]>('/books/semantic-search', {
+    params: { q: query, limit },
+  })
+}
