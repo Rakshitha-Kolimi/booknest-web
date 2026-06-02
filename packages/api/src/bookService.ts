@@ -138,3 +138,7 @@ export async function updateBook(
 export async function deleteBook(id: string): Promise<void> {
   await deleteData(`/books/${id}`)
 }
+
+export async function getRecommendations(limit = 4): Promise<Book[]> {
+  return getData<Book[]>('/books/recommend', { params: { limit } })
+}

@@ -1,9 +1,3 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { toast } from 'react-hot-toast'
-
-import { usePageTitle } from '../PageTitleProvider'
-
 import {
   type Book,
   type Review,
@@ -11,6 +5,11 @@ import {
 } from '@booknest/services'
 import { getRole, safeLocalStorage } from '@booknest/utils'
 import { formatPrice } from '@booknest/utils'
+import React, { useEffect, useMemo, useState } from 'react'
+import { toast } from 'react-hot-toast'
+import { Link, useParams } from 'react-router-dom'
+
+import { usePageTitle } from '../PageTitleProvider'
 import {
   getQueryErrorMessage,
   useAddToCartMutation,
@@ -69,7 +68,7 @@ export default function BookDetail(): React.ReactElement {
         ? getQueryErrorMessage(reviewMutation.error, 'Unable to save review')
         : ''
   const pageTitle = book?.name
-    ? `${book.name}${book.author_name ? ` by ${book.author_name}` : ''}`
+    ? `${book.name}${book.author?.name ? ` by ${book.author?.name}` : ''}`
     : loading
       ? 'Loading Book'
       : 'Book Details'
@@ -186,7 +185,7 @@ export default function BookDetail(): React.ReactElement {
 
         <div>
           <h1 className="text-3xl font-semibold text-zinc-900">{book.name}</h1>
-          <p className="mt-1 text-zinc-600">by {book.author_name}</p>
+          <p className="mt-1 text-zinc-600">by {book.author?.name}</p>
           {book.categories && book.categories.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {book.categories.map((category) => (

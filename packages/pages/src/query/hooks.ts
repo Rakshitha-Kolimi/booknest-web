@@ -18,6 +18,7 @@ import {
   getBookById,
   getCart,
   getErrorMessage,
+  getRecommendations,
   listAllOrders,
   listAuthors,
   listBookReviews,
@@ -48,6 +49,7 @@ export const queryKeys = {
   books: (params?: ListBooksQueryParams) => ['books', params] as const,
   book: (id: string) => ['book', id] as const,
   bookReviews: (id: string) => ['bookReviews', id] as const,
+  recommendations: ['recommendations'] as const,
   cart: ['cart'] as const,
   myOrders: ['myOrders'] as const,
   allOrders: ['allOrders'] as const,
@@ -83,6 +85,13 @@ export function useBookReviewsQuery(id: string) {
     queryKey: queryKeys.bookReviews(id),
     queryFn: () => listBookReviews(id),
     enabled: Boolean(id),
+  })
+}
+
+export function useRecommendationsQuery() {
+  return useQuery({
+    queryKey: queryKeys.recommendations,
+    queryFn: () => getRecommendations(4),
   })
 }
 
