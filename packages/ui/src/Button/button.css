@@ -30,3 +30,25 @@
   filter: saturate(1.06);
   transform: translateY(-1px);
 }
+
+.btn-skip {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9a3412;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid #fdba74;
+  background: rgba(255, 255, 255, 0.92);
+  margin: 0 0 12px;
+  text-decoration: none;
+}
+
+.btn-skip:hover {
+  background: #fff7ed;
+  box-shadow: 0 10px 20px rgba(234, 88, 12, 0.12);
+  transform: translateY(-1px);
+}

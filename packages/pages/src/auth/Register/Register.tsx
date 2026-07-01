@@ -136,6 +136,9 @@ export default function Register(): React.ReactElement {
             type="submit"
             disabled={registerMutation.isPending}
           />
+          <Link to="/books" className="btn-skip">
+            Skip and Explore Books
+          </Link>
 
           <p className="caption-text">
             By signing up, you agree to our{' '}

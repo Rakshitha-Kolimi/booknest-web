@@ -88,10 +88,11 @@ export function useBookReviewsQuery(id: string) {
   })
 }
 
-export function useRecommendationsQuery() {
+export function useRecommendationsQuery(enabled = true) {
   return useQuery({
     queryKey: queryKeys.recommendations,
     queryFn: () => getRecommendations(4),
+    enabled,
   })
 }
 

@@ -8,14 +8,17 @@ import { useRecommendationsQuery } from '../query/hooks'
 
 export default function Home(): React.ReactElement {
   const role = getRole()
-  usePageTitle(role === 'ADMIN' ? 'Admin Workspace' : 'Home')
+  const isAuthenticated = Boolean(role)
+  const isAdmin = role === 'ADMIN'
+  const isGuest = !isAuthenticated
+  usePageTitle(isAdmin ? 'Admin Workspace' : 'Home')
 
   const { data: recommendations, isLoading: recLoading } =
-    useRecommendationsQuery()
+    useRecommendationsQuery(isAuthenticated && !isAdmin)
 
   const cards = useMemo(
     () =>
-      role === 'ADMIN'
+      isAdmin
         ? [
             {
               title: 'Manage Catalog',
@@ -31,6 +34,29 @@ export default function Home(): React.ReactElement {
               cta: 'Open Admin Orders',
             },
           ]
+        : isGuest
+          ? [
+              {
+                title: 'Browse Books',
+                description: 'Explore the catalog without logging in.',
+                path: '/books',
+                cta: 'Explore Books',
+              },
+              {
+                title: 'Sign In',
+                description:
+                  'Log in to add books to your cart, checkout, and use Nesty.',
+                path: '/login',
+                cta: 'Log In',
+              },
+              {
+                title: 'Create Account',
+                description:
+                  'Register to save carts, orders, and reviews.',
+                path: '/register',
+                cta: 'Sign Up',
+              },
+            ]
         : [
             {
               title: 'Browse Books',
@@ -51,10 +77,10 @@ export default function Home(): React.ReactElement {
               cta: 'View Orders',
             },
           ],
-    [role]
+    [isAdmin, isGuest]
   )
 
-  const showRecommendations = role !== 'ADMIN'
+  const showRecommendations = isAuthenticated && !isAdmin
 
   return (
     <section className="space-y-6">
@@ -63,12 +89,14 @@ export default function Home(): React.ReactElement {
           BookNest
         </p>
         <h1 className="mt-2 text-3xl font-semibold leading-tight text-zinc-900 md:text-4xl">
-          {role === 'ADMIN' ? 'Admin Workspace' : 'Discover Your Next Book'}
+          {isAdmin ? 'Admin Workspace' : 'Discover Your Next Book'}
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-700">
-          {role === 'ADMIN'
+          {isAdmin
             ? 'Upload books, monitor orders, and keep operations moving from one place.'
-            : 'Browse books, build your cart, checkout, and manage your orders like an e-commerce flow.'}
+            : isGuest
+              ? 'Browse the catalog freely. Log in when you want to add books to your cart, checkout, or use Nesty.'
+              : 'Browse books, build your cart, checkout, and manage your orders like an e-commerce flow.'}
         </p>
       </div>
 
@@ -181,7 +209,9 @@ export default function Home(): React.ReactElement {
           {!recLoading &&
             (!recommendations || recommendations.length === 0) && (
               <p className="text-sm text-zinc-500">
-                Complete your first order to get personalised recommendations.
+                {isGuest
+                  ? 'Log in to see personalized recommendations.'
+                  : 'Complete your first order to get personalised recommendations.'}
               </p>
             )}
         </section>

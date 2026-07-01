@@ -20,6 +20,7 @@ export default function BookDetail(): React.ReactElement {
   const role = getRole()
   const isAdmin = role === 'ADMIN'
   const userId = safeLocalStorage.get('user_id')
+  const canPurchase = Boolean(role) && !isAdmin
   const canReview = !isAdmin && Boolean(userId)
 
   // Call query functions before deriving UI-specific values from the data.
@@ -86,6 +87,9 @@ export default function BookDetail(): React.ReactElement {
 
   const handleAddToCart = async () => {
     if (!book) return
+    if (!canPurchase) {
+      return
+    }
 
     try {
       await addToCartMutation.mutateAsync({ bookId: book.id, count: quantity })
@@ -217,7 +221,7 @@ export default function BookDetail(): React.ReactElement {
             </p>
           </div>
 
-          {!isAdmin && (
+          {canPurchase ? (
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <label
                 htmlFor="quantity"
@@ -260,7 +264,19 @@ export default function BookDetail(): React.ReactElement {
                     : 'Add to Cart'}
               </button>
             </div>
-          )}
+          ) : !isAdmin ? (
+            <div className="mt-6 rounded-xl border border-orange-200 bg-orange-50 p-4">
+              <p className="text-sm text-zinc-700">
+                Log in to add this book to your cart and continue to checkout.
+              </p>
+              <Link
+                to="/login"
+                className="bn-button mt-3 inline-flex px-4 py-2 text-sm"
+              >
+                Log In
+              </Link>
+            </div>
+          ) : null}
         </div>
       </article>
 

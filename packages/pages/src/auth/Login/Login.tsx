@@ -84,8 +84,12 @@ export default function Login(): React.ReactElement {
           <Button
             label={loginMutation.isPending ? 'Logging in' : 'Login'}
             className="btn-login"
+            type="submit"
             disabled={loginMutation.isPending}
           />
+          <Link to="/books" className="btn-skip">
+            Skip and Explore Books
+          </Link>
         </form>
       </div>
     </div>

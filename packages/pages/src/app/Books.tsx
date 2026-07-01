@@ -21,6 +21,7 @@ export default function Books(): React.ReactElement {
   const navigate = useNavigate()
   const role = getRole()
   const isAdmin = role === 'ADMIN'
+  const canPurchase = Boolean(role) && !isAdmin
   usePageTitle(isAdmin ? 'Manage Books' : 'Books')
 
   const [mode, setMode] = useState<PaginationMode>('offset')
@@ -91,7 +92,9 @@ export default function Books(): React.ReactElement {
           <p className="text-sm text-zinc-600">
             {isAdmin
               ? 'Review the catalog and jump into admin book creation.'
-              : 'Browse books and add them to your cart.'}
+              : canPurchase
+                ? 'Browse books and add them to your cart.'
+                : 'Browse books freely and log in when you are ready to buy.'}
           </p>
         </div>
 
@@ -204,7 +207,7 @@ export default function Books(): React.ReactElement {
               </div>
 
               <div className="mt-4 flex items-center gap-2">
-                {!isAdmin && (
+                {canPurchase ? (
                   <button
                     type="button"
                     className="bn-button px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
@@ -217,13 +220,21 @@ export default function Books(): React.ReactElement {
                     }
                   >
                     {addToCartMutation.isPending &&
-                    addToCartMutation.variables?.bookId === book.id
-                      ? 'Adding...'
-                      : book.available_stock < 1
-                        ? 'Out of Stock'
-                        : 'Add to Cart'}
+                      addToCartMutation.variables?.bookId === book.id
+                        ? 'Adding...'
+                        : book.available_stock < 1
+                          ? 'Out of Stock'
+                          : 'Add to Cart'}
                   </button>
-                )}
+                ) : !isAdmin ? (
+                  <Link
+                    to="/login"
+                    className="bn-button px-3 py-2 text-sm"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    Log in to Buy
+                  </Link>
+                ) : null}
               </div>
             </div>
           ))}

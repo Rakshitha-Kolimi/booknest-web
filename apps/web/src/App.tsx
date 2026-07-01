@@ -18,7 +18,7 @@ import {
 } from '@booknest/pages'
 import { Header } from '@booknest/ui'
 import { Logout } from '@booknest/ui'
-import { PrivateRoute, PublicRoute, RoleBasedRoute } from '@booknest/ui-helpers'
+import { PublicRoute, RoleBasedRoute } from '@booknest/ui-helpers'
 import { clearAuthSession, getRole } from '@booknest/utils'
 import React from 'react'
 import { Toaster } from 'react-hot-toast'
@@ -71,36 +71,48 @@ export default function App() {
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4">
             <Header />
             {isAuthenticated && <GlobalSearch />}
-            {isAuthenticated && (
-              <nav className="flex items-center gap-4">
-                <NavLink to="/" className="app-link">
-                  Home
-                </NavLink>
-                <NavLink to="/books" className="app-link">
-                  Books
-                </NavLink>
-                {role === 'ADMIN' ? (
-                  <>
-                    <NavLink to="/admin/manage" className="app-link">
-                      Manage
-                    </NavLink>
-                    <NavLink to="/admin/orders" className="app-link">
-                      Admin Orders
-                    </NavLink>
-                  </>
-                ) : (
-                  <>
-                    <NavLink to="/cart" className="app-link">
-                      Cart
-                    </NavLink>
-                    <NavLink to="/orders" className="app-link">
-                      Orders
-                    </NavLink>
-                  </>
-                )}
-                <NavLink to="/profile" className="app-link">
-                  Profile
-                </NavLink>
+            <nav className="flex items-center gap-4">
+              <NavLink to="/" className="app-link">
+                Home
+              </NavLink>
+              <NavLink to="/books" className="app-link">
+                Books
+              </NavLink>
+              {isAuthenticated && role === 'ADMIN' ? (
+                <>
+                  <NavLink to="/admin/manage" className="app-link">
+                    Manage
+                  </NavLink>
+                  <NavLink to="/admin/orders" className="app-link">
+                    Admin Orders
+                  </NavLink>
+                  <NavLink to="/profile" className="app-link">
+                    Profile
+                  </NavLink>
+                </>
+              ) : isAuthenticated ? (
+                <>
+                  <NavLink to="/cart" className="app-link">
+                    Cart
+                  </NavLink>
+                  <NavLink to="/orders" className="app-link">
+                    Orders
+                  </NavLink>
+                  <NavLink to="/profile" className="app-link">
+                    Profile
+                  </NavLink>
+                </>
+              ) : (
+                <>
+                  <NavLink to="/login" className="app-link">
+                    Log in
+                  </NavLink>
+                  <NavLink to="/register" className="app-link">
+                    Sign up
+                  </NavLink>
+                </>
+              )}
+              {isAuthenticated && (
                 <button
                   type="button"
                   onClick={onLogout}
@@ -109,8 +121,8 @@ export default function App() {
                 >
                   <Logout width="2rem" height="2rem" />
                 </button>
-              </nav>
-            )}
+              )}
+            </nav>
           </div>
         </header>
       )}
@@ -146,15 +158,9 @@ export default function App() {
             />
             <Route path="/verify-email" element={<VerifyEmail />} />
 
-            <Route path="/" element={<PrivateRoute element={<Home />} />} />
-            <Route
-              path="/books"
-              element={<PrivateRoute element={<Books />} />}
-            />
-            <Route
-              path="/books/:id"
-              element={<PrivateRoute element={<BookDetail />} />}
-            />
+            <Route path="/" element={<Home />} />
+            <Route path="/books" element={<Books />} />
+            <Route path="/books/:id" element={<BookDetail />} />
             <Route
               path="/cart"
               element={
@@ -196,7 +202,12 @@ export default function App() {
             />
             <Route
               path="/profile"
-              element={<PrivateRoute element={<Profile />} />}
+              element={
+                <RoleBasedRoute
+                  element={<Profile />}
+                  allowedRoles={['USER', 'ADMIN']}
+                />
+              }
             />
             <Route path="/unauthorized" element={<UnAuthorized />} />
             <Route path="*" element={<NotFound />} />
