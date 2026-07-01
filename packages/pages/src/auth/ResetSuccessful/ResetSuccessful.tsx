@@ -1,8 +1,9 @@
 import '../common/index.css'
 
-import { usePageTitle } from '../../PageTitleProvider'
 import { Button, Header } from '@booknest/ui'
 import React from 'react'
+
+import { usePageTitle } from '../../PageTitleProvider'
 
 export default function ResetSuccessful(): React.ReactElement {
   usePageTitle('Password Reset Successful')

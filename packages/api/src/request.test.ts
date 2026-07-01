@@ -10,7 +10,7 @@ const { mockClient } = vi.hoisted(() => ({
   },
 }))
 
-vi.mock('@booknest/services/client', () => ({
+vi.mock('./client', () => ({
   default: mockClient,
 }))
 

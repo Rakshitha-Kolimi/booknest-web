@@ -1,14 +1,14 @@
 import '../common/index.css'
 
-import { usePageTitle } from '../../PageTitleProvider'
-import { useRegisterMutation } from '../../query/hooks'
 import { AuthService, getErrorMessage } from '@booknest/services'
-import { DefaultCountryCode } from '@booknest/utils'
 import { Button, Header } from '@booknest/ui'
+import { DefaultCountryCode } from '@booknest/utils'
 import React, { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
 
+import { usePageTitle } from '../../PageTitleProvider'
+import { useRegisterMutation } from '../../query/hooks'
 import Dialog from './Terms&Privacy/Terms&Privacy'
 
 export default function Register(): React.ReactElement {
@@ -57,7 +57,7 @@ export default function Register(): React.ReactElement {
 
       toast.success('Account created successfully! Redirecting to login...')
       navigate('/login')
-    } catch (err: any) {
+    } catch (err) {
       toast.error(
         getErrorMessage(err, 'Registration failed. Please try again.')
       )

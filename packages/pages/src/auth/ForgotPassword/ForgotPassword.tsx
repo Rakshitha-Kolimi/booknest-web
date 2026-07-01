@@ -1,12 +1,13 @@
 import '../common/index.css'
 
+import { getErrorMessage } from '@booknest/services'
+import { Button, Header } from '@booknest/ui'
+import React, { useState } from 'react'
+import { toast } from 'react-hot-toast'
+import { Link, useNavigate } from 'react-router-dom'
+
 import { usePageTitle } from '../../PageTitleProvider'
 import { useForgotPasswordMutation } from '../../query/hooks'
-import { Button, Header } from '@booknest/ui'
-import { AuthService, getErrorMessage } from '@booknest/services'
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { toast } from 'react-hot-toast'
 
 export default function ForgotPassword(): React.ReactElement {
   const navigate = useNavigate()
@@ -21,7 +22,7 @@ export default function ForgotPassword(): React.ReactElement {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault()
 
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -42,7 +43,7 @@ export default function ForgotPassword(): React.ReactElement {
       } else {
         navigate('/reset-successful')
       }
-    } catch (err: any) {
+    } catch (err) {
       toast.error(
         getErrorMessage(err, 'Forgot password failed. Please try again.')
       )

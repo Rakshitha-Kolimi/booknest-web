@@ -1,10 +1,7 @@
+import { formatPrice } from '@booknest/utils'
 import React, { useState } from 'react'
 
 import { usePageTitle } from '../PageTitleProvider'
-
-import { type OrderView } from '@booknest/services'
-
-import { formatPrice } from '@booknest/utils'
 import {
   getQueryErrorMessage,
   useCancelOrderMutation,

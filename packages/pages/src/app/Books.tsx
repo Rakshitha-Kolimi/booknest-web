@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { toast } from 'react-hot-toast'
-
 import { type Book, type ListBooksQueryParams } from '@booknest/services'
 import { getRole } from '@booknest/utils'
+import { formatPrice } from '@booknest/utils'
+import React, { useMemo, useState } from 'react'
+import { toast } from 'react-hot-toast'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { usePageTitle } from '../PageTitleProvider'
 import {
@@ -11,8 +11,6 @@ import {
   useAddToCartMutation,
   useBooksQuery,
 } from '../query/hooks'
-
-import { formatPrice } from '@booknest/utils'
 
 type PaginationMode = 'offset' | 'cursor'
 
@@ -27,11 +25,9 @@ export default function Books(): React.ReactElement {
 
   const [mode, setMode] = useState<PaginationMode>('offset')
   const [offset, setOffset] = useState(0)
-  const [nextCursor, setNextCursor] = useState('')
   const [cursorStack, setCursorStack] = useState<string[]>([])
   const [currentCursor, setCurrentCursor] = useState('')
-  const [total, setTotal] = useState(0)
-  const [hasMore, setHasMore] = useState(false)
+
   const params = useMemo<ListBooksQueryParams>(
     () => ({
       limit: PAGE_SIZE,
@@ -49,6 +45,12 @@ export default function Books(): React.ReactElement {
   const addToCartMutation = useAddToCartMutation()
   const books = booksQuery.data?.items ?? []
   const loading = booksQuery.isLoading || booksQuery.isFetching
+
+  // Derive pagination values directly from query data
+  const totalFromQuery = booksQuery.data?.total ?? 0
+  const hasMoreFromQuery = booksQuery.data?.has_more ?? false
+  const nextCursorFromQuery = booksQuery.data?.next_cursor ?? ''
+
   const error = booksQuery.isError
     ? getQueryErrorMessage(booksQuery.error, 'Failed to load books')
     : addToCartMutation.isError
@@ -57,12 +59,6 @@ export default function Books(): React.ReactElement {
           'Unable to add book to cart'
         )
       : ''
-
-  useEffect(() => {
-    setTotal(booksQuery.data?.total ?? 0)
-    setHasMore(booksQuery.data?.has_more ?? false)
-    setNextCursor(booksQuery.data?.next_cursor || '')
-  }, [booksQuery.data])
 
   const handleAddToCart = async (bookId: string) => {
     try {
@@ -78,7 +74,7 @@ export default function Books(): React.ReactElement {
   }
 
   const currentPage = Math.floor(offset / PAGE_SIZE) + 1
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(totalFromQuery / PAGE_SIZE))
   const getReviewLabel = (book: Book): string | null => {
     if (book.total_reviews < 1) {
       return null
@@ -139,7 +135,7 @@ export default function Books(): React.ReactElement {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {books.map((book) => (
-            <article
+            <div
               key={book.id}
               className="bn-card-solid flex h-full cursor-pointer flex-col rounded-xl p-4 transition hover:-translate-y-0.5"
               onClick={() => openBookDetails(book.id)}
@@ -150,7 +146,7 @@ export default function Books(): React.ReactElement {
                   openBookDetails(book.id)
                 }
               }}
-              role="link"
+              role="button"
               tabIndex={0}
             >
               <div className="mb-4 h-40 rounded-md bg-zinc-100">
@@ -229,7 +225,7 @@ export default function Books(): React.ReactElement {
                   </button>
                 )}
               </div>
-            </article>
+            </div>
           ))}
         </div>
       )}
@@ -237,7 +233,7 @@ export default function Books(): React.ReactElement {
       <div className="bn-card-solid flex flex-col gap-2 rounded-xl p-4 text-sm md:flex-row md:items-center md:justify-between">
         {mode === 'offset' ? (
           <p className="text-zinc-600">
-            Page {currentPage} of {totalPages} ({total} books)
+            Page {currentPage} of {totalPages} ({totalFromQuery} books)
           </p>
         ) : (
           <p className="text-zinc-600">
@@ -262,7 +258,7 @@ export default function Books(): React.ReactElement {
                 type="button"
                 className="bn-button px-3 py-2 disabled:cursor-not-allowed disabled:opacity-60"
                 onClick={() => setOffset((value) => value + PAGE_SIZE)}
-                disabled={loading || offset + PAGE_SIZE >= total}
+                disabled={loading || offset + PAGE_SIZE >= totalFromQuery}
               >
                 Next
               </button>
@@ -292,9 +288,9 @@ export default function Books(): React.ReactElement {
                 className="bn-button px-3 py-2 disabled:cursor-not-allowed disabled:opacity-60"
                 onClick={() => {
                   setCursorStack((stack) => [...stack, currentCursor])
-                  setCurrentCursor(nextCursor)
+                  setCurrentCursor(nextCursorFromQuery)
                 }}
-                disabled={loading || !hasMore || !nextCursor}
+                disabled={loading || !hasMoreFromQuery || !nextCursorFromQuery}
               >
                 Next
               </button>

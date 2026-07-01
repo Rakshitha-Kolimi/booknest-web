@@ -1,13 +1,14 @@
-import { AuthService, getErrorMessage } from '@booknest/services'
 import '../common/index.css'
 
-import { usePageTitle } from '../../PageTitleProvider'
-import { useLoginMutation } from '../../query/hooks'
+import { getErrorMessage } from '@booknest/services'
 import { Button, Header } from '@booknest/ui'
+import { syncAuthSessionWithRefresh } from '@booknest/utils'
 import React, { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
-import { syncAuthSessionWithRefresh } from '@booknest/utils'
+
+import { usePageTitle } from '../../PageTitleProvider'
+import { useLoginMutation } from '../../query/hooks'
 
 export default function Login(): React.ReactElement {
   // Initialise navigation before setting up form and query state.
@@ -44,7 +45,7 @@ export default function Login(): React.ReactElement {
 
       toast.success('Logged in successfully!')
       navigate('/')
-    } catch (err: any) {
+    } catch (err) {
       toast.error(getErrorMessage(err, 'Login failed. Please try again.'))
     }
   }

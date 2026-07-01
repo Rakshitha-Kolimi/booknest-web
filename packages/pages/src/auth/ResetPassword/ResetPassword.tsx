@@ -1,12 +1,13 @@
 import '../common/index.css'
 
-import { usePageTitle } from '../../PageTitleProvider'
 import { getErrorMessage } from '@booknest/services'
-import { useResetPasswordMutation } from '../../query/hooks'
 import { Button, Header } from '@booknest/ui'
 import React, { useMemo, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+
+import { usePageTitle } from '../../PageTitleProvider'
+import { useResetPasswordMutation } from '../../query/hooks'
 
 export default function ResetPassword(): React.ReactElement {
   const navigate = useNavigate()
@@ -52,7 +53,7 @@ export default function ResetPassword(): React.ReactElement {
       })
       toast.success('Password reset successful. Please log in.')
       navigate('/login')
-    } catch (err: any) {
+    } catch (err) {
       toast.error(getErrorMessage(err, 'Password reset failed'))
     }
   }

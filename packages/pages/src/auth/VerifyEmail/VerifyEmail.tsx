@@ -1,8 +1,9 @@
-import { AuthService, getErrorMessage } from '@booknest/services'
+import '../common/index.css'
+
+import { getErrorMessage } from '@booknest/services'
 import { Header } from '@booknest/ui'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import '../common/index.css'
 
 import { usePageTitle } from '../../PageTitleProvider'
 import {
@@ -18,17 +19,22 @@ export default function VerifyEmail(): React.ReactElement {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const email = searchParams.get('email')?.trim() || ''
-  const [status, setStatus] = useState<VerificationState>('pending')
-  const [message, setMessage] = useState('Verifying your email...')
+  const token = searchParams.get('token')
+
+  // Initialize state based on token presence to avoid setState in effect
+  const [status, setStatus] = useState<VerificationState>(
+    !token ? 'error' : 'pending'
+  )
+  const [message, setMessage] = useState(
+    !token
+      ? 'The verification link is missing a token.'
+      : 'Verifying your email...'
+  )
   const verifyEmailMutation = useVerifyEmailMutation()
   const resendEmailMutation = useResendEmailVerificationMutation()
 
   useEffect(() => {
-    const token = searchParams.get('token')
-
     if (!token) {
-      setStatus('error')
-      setMessage('The verification link is missing a token.')
       return
     }
 
@@ -57,7 +63,7 @@ export default function VerifyEmail(): React.ReactElement {
     return () => {
       active = false
     }
-  }, [navigate, searchParams, verifyEmailMutation])
+  }, [navigate, searchParams, token, verifyEmailMutation])
 
   const handleResend = async () => {
     if (!email) {

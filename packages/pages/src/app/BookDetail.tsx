@@ -1,11 +1,7 @@
-import {
-  type Book,
-  type Review,
-  type ReviewListResponse,
-} from '@booknest/services'
+import { type Review, type ReviewListResponse } from '@booknest/services'
 import { getRole, safeLocalStorage } from '@booknest/utils'
 import { formatPrice } from '@booknest/utils'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { Link, useParams } from 'react-router-dom'
 
@@ -33,7 +29,6 @@ export default function BookDetail(): React.ReactElement {
   const addToCartMutation = useAddToCartMutation()
   const reviewMutation = useUpsertBookReviewMutation(bookId)
   const book = bookQuery.data ?? null
-  const reviews = reviewsQuery.data?.items ?? []
   const loading = bookQuery.isLoading
   const reviewsLoading = reviewsQuery.isLoading
 
@@ -47,9 +42,23 @@ export default function BookDetail(): React.ReactElement {
     [reviewsQuery.data]
   )
 
+  const reviews = useMemo(() => {
+    return reviewsQuery.data?.items ?? []
+  }, [reviewsQuery.data])
+
   const [quantity, setQuantity] = useState(1)
-  const [reviewRating, setReviewRating] = useState(5)
-  const [reviewComment, setReviewComment] = useState('')
+  const existingReview = useMemo(() => {
+    if (!userId) return undefined
+    return reviews.find((entry) => entry.user_id === userId)
+  }, [reviews, userId])
+
+  const reviewFormDefaults = existingReview
+    ? {
+        rating: existingReview.rating,
+        comment: existingReview.comment || '',
+        key: `${existingReview.id}-${existingReview.updated_at}`,
+      }
+    : { rating: 5, comment: '', key: 'new-review' }
   const error = !id
     ? 'Book id is missing in URL'
     : bookQuery.isError
@@ -75,19 +84,6 @@ export default function BookDetail(): React.ReactElement {
 
   usePageTitle(pageTitle)
 
-  useEffect(() => {
-    // Keep the review form aligned with the current user's saved review.
-    const existingReview = reviews.find((entry) => entry.user_id === userId)
-    if (existingReview) {
-      setReviewRating(existingReview.rating)
-      setReviewComment(existingReview.comment || '')
-      return
-    }
-
-    setReviewRating(5)
-    setReviewComment('')
-  }, [reviews, userId])
-
   const handleAddToCart = async () => {
     if (!book) return
 
@@ -99,13 +95,13 @@ export default function BookDetail(): React.ReactElement {
     }
   }
 
-  const handleReviewSubmit = async () => {
+  const handleReviewSubmit = async (draft: ReviewDraft) => {
     if (!id) return
 
     try {
       await reviewMutation.mutateAsync({
-        rating: reviewRating,
-        comment: reviewComment.trim(),
+        rating: draft.rating,
+        comment: draft.comment.trim(),
       })
       toast.success('Your review has been saved')
     } catch (e: unknown) {
@@ -358,56 +354,13 @@ export default function BookDetail(): React.ReactElement {
           )}
 
           {canReview && (
-            <form
-              className="mt-5 space-y-4"
-              onSubmit={(event) => {
-                event.preventDefault()
-                void handleReviewSubmit()
-              }}
-            >
-              <label className="block">
-                <span className="text-sm font-medium text-zinc-700">
-                  Rating
-                </span>
-                <select
-                  value={reviewRating}
-                  onChange={(event) => {
-                    setReviewRating(Number(event.target.value))
-                  }}
-                  className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-                >
-                  {[5, 4, 3, 2, 1].map((value) => (
-                    <option key={value} value={value}>
-                      {value} star{value === 1 ? '' : 's'}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block">
-                <span className="text-sm font-medium text-zinc-700">
-                  Comment
-                </span>
-                <textarea
-                  value={reviewComment}
-                  onChange={(event) => {
-                    setReviewComment(event.target.value)
-                  }}
-                  rows={5}
-                  maxLength={1000}
-                  className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-                  placeholder="What stood out to you about this book?"
-                />
-              </label>
-
-              <button
-                type="submit"
-                className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
-                disabled={reviewMutation.isPending}
-              >
-                {reviewMutation.isPending ? 'Saving...' : 'Save Review'}
-              </button>
-            </form>
+            <ReviewForm
+              key={reviewFormDefaults.key}
+              defaultRating={reviewFormDefaults.rating}
+              defaultComment={reviewFormDefaults.comment}
+              isSubmitting={reviewMutation.isPending}
+              onSubmit={(draft) => void handleReviewSubmit(draft)}
+            />
           )}
 
           {reviewsError && (
@@ -418,5 +371,76 @@ export default function BookDetail(): React.ReactElement {
         </article>
       </section>
     </section>
+  )
+}
+
+type ReviewDraft = {
+  rating: number
+  comment: string
+}
+
+type ReviewFormProps = {
+  defaultRating: number
+  defaultComment: string
+  isSubmitting: boolean
+  onSubmit: (draft: ReviewDraft) => void
+}
+
+function ReviewForm({
+  defaultRating,
+  defaultComment,
+  isSubmitting,
+  onSubmit,
+}: ReviewFormProps): React.ReactElement {
+  const [rating, setRating] = useState(defaultRating)
+  const [comment, setComment] = useState(defaultComment)
+
+  return (
+    <form
+      className="mt-5 space-y-4"
+      onSubmit={(event) => {
+        event.preventDefault()
+        onSubmit({ rating, comment })
+      }}
+    >
+      <label className="block">
+        <span className="text-sm font-medium text-zinc-700">Rating</span>
+        <select
+          value={rating}
+          onChange={(event) => {
+            setRating(Number(event.target.value))
+          }}
+          className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+        >
+          {[5, 4, 3, 2, 1].map((value) => (
+            <option key={value} value={value}>
+              {value} star{value === 1 ? '' : 's'}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="block">
+        <span className="text-sm font-medium text-zinc-700">Comment</span>
+        <textarea
+          value={comment}
+          onChange={(event) => {
+            setComment(event.target.value)
+          }}
+          rows={5}
+          maxLength={1000}
+          className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          placeholder="What stood out to you about this book?"
+        />
+      </label>
+
+      <button
+        type="submit"
+        className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? 'Saving...' : 'Save Review'}
+      </button>
+    </form>
   )
 }

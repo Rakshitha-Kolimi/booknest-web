@@ -27,16 +27,6 @@ export function PageTitleProvider({
 }: PageTitleProviderProps): React.ReactElement {
   const [pageTitle, setPageTitle] = useState<string>(defaultTitle)
 
-  const formatTitle = (title?: string | null): string => {
-    const trimmedTitle = title?.trim()
-
-    if (!trimmedTitle) {
-      return defaultTitle
-    }
-
-    return `${trimmedTitle} | ${defaultTitle}`
-  }
-
   useEffect(() => {
     setPageTitle(defaultTitle)
   }, [defaultTitle])
@@ -45,16 +35,24 @@ export function PageTitleProvider({
     document.title = pageTitle
   }, [pageTitle])
 
-  const value = useMemo<PageTitleContextValue>(
-    () => ({
+  const value = useMemo<PageTitleContextValue>(() => {
+    const formatTitle = (title?: string | null): string => {
+      const trimmedTitle = title?.trim()
+
+      if (!trimmedTitle) {
+        return defaultTitle
+      }
+
+      return `${trimmedTitle} | ${defaultTitle}`
+    }
+    return {
       defaultTitle,
       setPageTitle: (title) => {
         setPageTitle(formatTitle(title))
       },
       formatTitle,
-    }),
-    [defaultTitle]
-  )
+    }
+  }, [defaultTitle])
 
   return (
     <PageTitleContext.Provider value={value}>

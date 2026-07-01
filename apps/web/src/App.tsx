@@ -31,6 +31,7 @@ import {
 } from 'react-router-dom'
 
 import { GlobalSearch } from './GlobalSearch'
+import { NestyChat } from './NestyChat'
 
 export default function App() {
   const location = useLocation()
@@ -113,6 +114,8 @@ export default function App() {
           </div>
         </header>
       )}
+
+      {isAuthenticated && !isAuthPage && <NestyChat />}
 
       <main
         className={

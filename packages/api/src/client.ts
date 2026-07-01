@@ -31,6 +31,30 @@ type RetryableRequestConfig = InternalAxiosRequestConfig & {
 
 let refreshPromise: Promise<string> | null = null
 
+function setBearerToken(
+  config: InternalAxiosRequestConfig,
+  token: string
+): void {
+  const authorization = `Bearer ${token}`
+
+  if (typeof config.headers.set === 'function') {
+    config.headers.set('Authorization', authorization)
+    return
+  }
+
+  config.headers.Authorization = authorization
+}
+
+function hasBearerToken(config?: InternalAxiosRequestConfig): boolean {
+  if (!config) return false
+
+  if (typeof config.headers.has === 'function') {
+    return config.headers.has('Authorization')
+  }
+
+  return Boolean(config.headers.Authorization || config.headers.authorization)
+}
+
 function forceLogout(): void {
   clearAuthSession()
   if (window.location.pathname !== '/login') {
@@ -80,7 +104,7 @@ async function requestNewAccessToken(): Promise<string> {
 client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = safeLocalStorage.get('token')
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    setBearerToken(config, token)
   }
 
   return config
@@ -92,7 +116,7 @@ client.interceptors.response.use(
   async (error: AxiosError) => {
     const status = error.response?.status
     const originalRequest = error.config as RetryableRequestConfig | undefined
-    const sentBearerToken = Boolean(originalRequest?.headers?.Authorization)
+    const sentBearerToken = hasBearerToken(originalRequest)
     const shouldAttemptRefresh =
       status === 401 &&
       sentBearerToken &&
@@ -113,7 +137,7 @@ client.interceptors.response.use(
       }
 
       const newAccessToken = await refreshPromise
-      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+      setBearerToken(originalRequest, newAccessToken)
       return client(originalRequest)
     } catch {
       forceLogout()

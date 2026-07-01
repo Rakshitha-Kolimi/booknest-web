@@ -1,5 +1,6 @@
-import { AuthService, getErrorMessage } from '@booknest/services'
+import { getErrorMessage } from '@booknest/services'
 import { safeLocalStorage } from '@booknest/utils'
+import { getRole } from '@booknest/utils'
 import React, { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { Link } from 'react-router-dom'
@@ -12,8 +13,6 @@ import {
   useUserProfileQuery,
   useVerifyMobileMutation,
 } from '../query/hooks'
-
-import { getRole } from '@booknest/utils'
 
 export default function Profile(): React.ReactElement {
   usePageTitle('Profile')
@@ -44,7 +43,10 @@ export default function Profile(): React.ReactElement {
       mobile: profileQuery.data?.mobile || 'Unavailable',
       email_verified: profileQuery.data?.email_verified ?? true,
       mobile_verified: profileQuery.data?.mobile_verified ?? true,
-      use_sms: optimisticUseSms ?? profileQuery.data?.use_sms ?? false,
+      use_sms:
+        optimisticUseSms !== null
+          ? optimisticUseSms
+          : (profileQuery.data?.use_sms ?? false),
       created_at: profileQuery.data?.created_at || '',
     }),
     [optimisticUseSms, profileQuery.data]
@@ -81,13 +83,6 @@ export default function Profile(): React.ReactElement {
       )
     }
   }, [profileQuery.error, profileQuery.isError])
-
-  useEffect(() => {
-    // Reset the optimistic override once the server responds with fresh data.
-    if (profileQuery.data) {
-      setOptimisticUseSms(null)
-    }
-  }, [profileQuery.data])
 
   const handleResendEmailVerification = async () => {
     try {
@@ -283,8 +278,13 @@ export default function Profile(): React.ReactElement {
             <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
               Notification Preference
             </p>
-            <label className="mt-3 flex items-start gap-3">
+            <label
+              htmlFor="sms-notifications"
+              className="mt-3 flex items-start gap-3"
+              aria-label="Send me SMS updates"
+            >
               <input
+                id="sms-notifications"
                 type="checkbox"
                 checked={user.use_sms}
                 onChange={handleNotificationPreferenceChange}

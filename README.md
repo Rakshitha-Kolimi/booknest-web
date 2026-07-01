@@ -4,8 +4,8 @@ Frontend monorepo for the BookNest bookstore. The workspace uses React, TypeScri
 
 ## What is in this repo
 
-- `apps/web`: the browser app and route shell
-- `packages/api`: Axios client and typed service wrappers
+- `apps/web`: the browser app and route shell, including the NestyChat AI assistant and GlobalSearch components
+- `packages/api`: Axios client and typed service wrappers (auth, books, cart, orders, catalog, images, AI)
 - `packages/pages`: page-level screens for auth, catalog, cart, profile, and admin flows
 - `packages/ui`: shared UI components
 - `packages/ui-helpers`: route guards such as `PrivateRoute`, `PublicRoute`, and role-based access
@@ -114,10 +114,14 @@ Before going live, make sure the backend allows CORS from the deployed frontend 
 The app currently includes:
 
 - Public auth pages for login, registration, forgot password, reset password, and reset success
+- Email verification page for confirming account email addresses
 - Protected user routes for home, books, book detail, cart, orders, and profile
 - Admin-only routes for catalog management and admin order views
+- GlobalSearch component for semantic full-text book search from the navigation bar
+- NestyChat AI assistant for book discovery and recommendations, available to authenticated users
 - Book detail reviews with rating summaries and authenticated review submission
 - Token refresh support through `/auth/refresh`, with a legacy fallback to `/refresh`
+- 404 Not Found and 401 Unauthorized error pages
 
 Authentication state is stored client-side and attached to API requests through the shared Axios client in `packages/api`.
 
@@ -127,15 +131,23 @@ Review behavior:
 - Readers can submit or update a review from the book detail page.
 - The backend only accepts reviews from users who have completed a purchase of that book.
 
+NestyChat behavior:
+
+- Opens as a floating chat panel available on all authenticated pages.
+- Conversation history is persisted per user on the backend and reloaded on login.
+- Nesty answers questions about books, genres, authors, and catalog contents.
+
 ## Backend contract
 
 This app expects the backend API under `/api/v1` with these route groups:
 
-- Auth: `/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/forgot-password`, `/auth/reset-password`, `/auth/reset-password/confirm`
-- Books: `/books`, `/book/:id`, `/books/:id/reviews`
+- Auth: `/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/forgot-password`, `/auth/reset-password/confirm`, `/auth/verify-email`, `/auth/resend-email-verification`, `/auth/verify-mobile`, `/auth/resend-mobile-otp`
+- Books: `/books`, `/books/:id`, `/books/search`, `/books/semantic-search`, `/books/filter`, `/books/recommend`, `/books/:id/reviews`
 - Cart: `/cart`, `/cart/items`, `/cart/items/:book_id`, `/cart/clear`
-- Orders: `/orders`, `/orders/checkout`, `/orders/confirm`, `/admin/orders`
+- Orders: `/orders`, `/orders/checkout`, `/orders/confirm`, `/orders/cancel`, `/admin/orders`, `/admin/orders/status`
 - Catalog: `/authors`, `/categories`, `/publishers`
+- Images: `/images/upload`
+- AI: `/ai/health`, `/ai/chat`, `/ai/chat/history`
 
 If the platform server is not running or CORS is not configured for the frontend origin, login and data-loading flows will fail immediately.
 
@@ -152,3 +164,4 @@ If the platform server is not running or CORS is not configured for the frontend
 3. Run `pnpm dev` from this repository.
 4. Sign in with a seeded or manually created user.
 5. Use an admin account as well if you want to verify `/admin/manage` and `/admin/orders`.
+6. Test the NestyChat assistant and GlobalSearch with a running AI-configured backend.

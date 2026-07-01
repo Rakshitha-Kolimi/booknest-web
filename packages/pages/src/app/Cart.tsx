@@ -1,11 +1,9 @@
+import { type OrderView, type PaymentMethod } from '@booknest/services'
+import { formatPrice } from '@booknest/utils'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { usePageTitle } from '../PageTitleProvider'
-
-import { type OrderView, type PaymentMethod } from '@booknest/services'
-
-import { formatPrice } from '@booknest/utils'
 import {
   getQueryErrorMessage,
   useCartQuery,
@@ -220,9 +218,26 @@ export default function Cart(): React.ReactElement {
               {formatPrice(cart.subtotal)}
             </p>
 
-            <label className="mt-4 block text-sm font-medium text-zinc-700">
+            <label
+              htmlFor="paymentMethodSelect"
+              className="mt-4 block text-sm font-medium text-zinc-700"
+            >
               Payment Method
             </label>
+            <select
+              id="paymentMethodSelect"
+              name="paymentMethod"
+              value={paymentMethod}
+              onChange={(e) =>
+                handlePaymentResult(e.target.value === 'credit_card')
+              }
+              className="mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            >
+              <option value="credit_card" selected>
+                Card
+              </option>
+              <option value="bank_account">Bank Transfer</option>
+            </select>
             <select
               value={paymentMethod}
               onChange={(event) =>

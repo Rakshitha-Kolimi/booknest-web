@@ -1,4 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import {
+  type Author,
+  type Book,
+  type BookInput,
+  type Category,
+  type Publisher,
+  type PublisherInput,
+} from '@booknest/services'
+import { formatPrice } from '@booknest/utils'
+import React, { useMemo, useState } from 'react'
 
 import { usePageTitle } from '../PageTitleProvider'
 import {
@@ -18,16 +27,6 @@ import {
   useUpdatePublisherMutation,
   useUploadBookImageMutation,
 } from '../query/hooks'
-
-import {
-  type Author,
-  type Book,
-  type BookInput,
-  type Category,
-  type Publisher,
-  type PublisherInput,
-} from '@booknest/services'
-import { formatPrice } from '@booknest/utils'
 
 type Tab = 'books' | 'publishers' | 'authors' | 'categories'
 
@@ -93,10 +92,20 @@ export default function AdminBooks(): React.ReactElement {
   const createCategoryMutation = useCreateCategoryMutation()
   const updateCategoryMutation = useUpdateCategoryMutation()
   const deleteCategoryMutation = useDeleteCategoryMutation()
-  const books = catalogQuery.data?.books ?? []
-  const authors = catalogQuery.data?.authors ?? []
-  const publishers = catalogQuery.data?.publishers ?? []
   const categories = catalogQuery.data?.categories ?? []
+
+  const books = useMemo(
+    () => catalogQuery.data?.books ?? [],
+    [catalogQuery.data]
+  )
+  const authors = useMemo(
+    () => catalogQuery.data?.authors ?? [],
+    [catalogQuery.data]
+  )
+  const publishers = useMemo(
+    () => catalogQuery.data?.publishers ?? [],
+    [catalogQuery.data]
+  )
   const loading = catalogQuery.isLoading
   const saving =
     createBookMutation.isPending ||

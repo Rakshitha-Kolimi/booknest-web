@@ -1,11 +1,10 @@
+import { getRole } from '@booknest/utils'
+import { formatPrice } from '@booknest/utils'
 import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
 import { usePageTitle } from '../PageTitleProvider'
 import { useRecommendationsQuery } from '../query/hooks'
-
-import { getRole } from '@booknest/utils'
-import { formatPrice } from '@booknest/utils'
 
 export default function Home(): React.ReactElement {
   const role = getRole()
