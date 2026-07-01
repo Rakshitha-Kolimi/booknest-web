@@ -1,7 +1,7 @@
 import { type Book, type ListBooksQueryParams } from '@booknest/services'
 import { getRole } from '@booknest/utils'
 import { formatPrice } from '@booknest/utils'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -15,6 +15,47 @@ import {
 type PaginationMode = 'offset' | 'cursor'
 
 const PAGE_SIZE = 12
+const BOOKS_PAGINATION_KEY = 'booknest_books_pagination'
+
+type SavedPaginationState = {
+  mode: PaginationMode
+  offset: number
+  cursorStack: string[]
+  currentCursor: string
+}
+
+const DEFAULT_PAGINATION_STATE: SavedPaginationState = {
+  mode: 'offset',
+  offset: 0,
+  cursorStack: [],
+  currentCursor: '',
+}
+
+function readSavedPaginationState(): SavedPaginationState {
+  const savedPagination = sessionStorage.getItem(BOOKS_PAGINATION_KEY)
+  if (!savedPagination) {
+    return DEFAULT_PAGINATION_STATE
+  }
+
+  try {
+    const parsed = JSON.parse(savedPagination) as Partial<SavedPaginationState>
+    return {
+      mode: parsed.mode === 'cursor' ? 'cursor' : 'offset',
+      offset: typeof parsed.offset === 'number' ? parsed.offset : 0,
+      cursorStack: Array.isArray(parsed.cursorStack)
+        ? parsed.cursorStack.filter(
+            (item): item is string => typeof item === 'string'
+          )
+        : [],
+      currentCursor:
+        typeof parsed.currentCursor === 'string' ? parsed.currentCursor : '',
+    }
+  } catch (error) {
+    sessionStorage.removeItem(BOOKS_PAGINATION_KEY)
+    console.error(error)
+    return DEFAULT_PAGINATION_STATE
+  }
+}
 
 export default function Books(): React.ReactElement {
   // Initialise variables used across pagination and navigation.
@@ -24,10 +65,27 @@ export default function Books(): React.ReactElement {
   const canPurchase = Boolean(role) && !isAdmin
   usePageTitle(isAdmin ? 'Manage Books' : 'Books')
 
-  const [mode, setMode] = useState<PaginationMode>('offset')
-  const [offset, setOffset] = useState(0)
-  const [cursorStack, setCursorStack] = useState<string[]>([])
-  const [currentCursor, setCurrentCursor] = useState('')
+  const [savedPagination] = useState(readSavedPaginationState)
+  const [mode, setMode] = useState<PaginationMode>(savedPagination.mode)
+  const [offset, setOffset] = useState(savedPagination.offset)
+  const [cursorStack, setCursorStack] = useState(savedPagination.cursorStack)
+  const [currentCursor, setCurrentCursor] = useState(
+    savedPagination.currentCursor
+  )
+
+  // Save pagination state to session storage whenever it changes
+  useEffect(() => {
+    const paginationState = {
+      mode,
+      offset,
+      cursorStack,
+      currentCursor,
+    }
+    sessionStorage.setItem(
+      BOOKS_PAGINATION_KEY,
+      JSON.stringify(paginationState)
+    )
+  }, [mode, offset, cursorStack, currentCursor])
 
   const params = useMemo<ListBooksQueryParams>(
     () => ({
@@ -71,6 +129,7 @@ export default function Books(): React.ReactElement {
   }
 
   const openBookDetails = (bookId: string) => {
+    // Don't clear pagination state here, let it be restored when user navigates back
     navigate(`/books/${bookId}`)
   }
 
@@ -161,7 +220,7 @@ export default function Books(): React.ReactElement {
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-xs uppercase tracking-widest text-zinc-500">
-                    No image
+                    {book.name}
                   </div>
                 )}
               </div>
@@ -220,11 +279,11 @@ export default function Books(): React.ReactElement {
                     }
                   >
                     {addToCartMutation.isPending &&
-                      addToCartMutation.variables?.bookId === book.id
-                        ? 'Adding...'
-                        : book.available_stock < 1
-                          ? 'Out of Stock'
-                          : 'Add to Cart'}
+                    addToCartMutation.variables?.bookId === book.id
+                      ? 'Adding...'
+                      : book.available_stock < 1
+                        ? 'Out of Stock'
+                        : 'Add to Cart'}
                   </button>
                 ) : !isAdmin ? (
                   <Link

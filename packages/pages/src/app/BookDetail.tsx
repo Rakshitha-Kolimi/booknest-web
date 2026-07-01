@@ -3,7 +3,7 @@ import { getRole, safeLocalStorage } from '@booknest/utils'
 import { formatPrice } from '@booknest/utils'
 import React, { useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { usePageTitle } from '../PageTitleProvider'
 import {
@@ -17,6 +17,7 @@ import {
 export default function BookDetail(): React.ReactElement {
   // Initialise variables used to determine access and route context.
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const role = getRole()
   const isAdmin = role === 'ADMIN'
   const userId = safeLocalStorage.get('user_id')
@@ -99,6 +100,11 @@ export default function BookDetail(): React.ReactElement {
     }
   }
 
+  const handleBackToBooks = () => {
+    // Navigate to books page without changing the URL so pagination state is preserved
+    navigate('/books')
+  }
+
   const handleReviewSubmit = async (draft: ReviewDraft) => {
     if (!id) return
 
@@ -143,24 +149,26 @@ export default function BookDetail(): React.ReactElement {
         <div className="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
           {error || 'Book not found'}
         </div>
-        <Link
-          to="/books"
+        <button
+          type="button"
+          onClick={handleBackToBooks}
           className="text-sm font-semibold text-zinc-900 underline"
         >
           Back to books
-        </Link>
+        </button>
       </div>
     )
   }
 
   return (
     <section className="space-y-5">
-      <Link
-        to="/books"
+      <button
+        type="button"
+        onClick={handleBackToBooks}
         className="text-sm font-semibold text-zinc-700 underline"
       >
         Back to books
-      </Link>
+      </button>
 
       {error && (
         <div className="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -178,7 +186,7 @@ export default function BookDetail(): React.ReactElement {
             />
           ) : (
             <div className="flex h-full items-center justify-center text-xs uppercase tracking-widest text-zinc-500">
-              No image
+              {book.name}
             </div>
           )}
         </div>

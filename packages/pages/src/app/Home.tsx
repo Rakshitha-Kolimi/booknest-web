@@ -51,32 +51,31 @@ export default function Home(): React.ReactElement {
               },
               {
                 title: 'Create Account',
-                description:
-                  'Register to save carts, orders, and reviews.',
+                description: 'Register to save carts, orders, and reviews.',
                 path: '/register',
                 cta: 'Sign Up',
               },
             ]
-        : [
-            {
-              title: 'Browse Books',
-              description: 'Search and explore available titles.',
-              path: '/books',
-              cta: 'Explore Books',
-            },
-            {
-              title: 'My Cart',
-              description: 'Review selected books and proceed to checkout.',
-              path: '/cart',
-              cta: 'Open Cart',
-            },
-            {
-              title: 'My Orders',
-              description: 'Track your placed orders and payment outcome.',
-              path: '/orders',
-              cta: 'View Orders',
-            },
-          ],
+          : [
+              {
+                title: 'Browse Books',
+                description: 'Search and explore available titles.',
+                path: '/books',
+                cta: 'Explore Books',
+              },
+              {
+                title: 'My Cart',
+                description: 'Review selected books and proceed to checkout.',
+                path: '/cart',
+                cta: 'Open Cart',
+              },
+              {
+                title: 'My Orders',
+                description: 'Track your placed orders and payment outcome.',
+                path: '/orders',
+                cta: 'View Orders',
+              },
+            ],
     [isAdmin, isGuest]
   )
 
