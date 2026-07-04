@@ -1,58 +1,49 @@
 # BookNest Web
 
-Frontend monorepo for the BookNest bookstore. The workspace uses React, TypeScript, Vite, pnpm workspaces, and Turbo, with shared packages for API access, page composition, UI, route guards, and browser utilities.
+BookNest Web is the React + TypeScript frontend for the BookNest bookstore platform. The repository is organized as a pnpm monorepo with Turbo, shared UI and utility packages, and a Vite app in `apps/web`.
 
-## What is in this repo
+## Repository Layout
 
-- `apps/web`: the browser app and route shell, including the NestyChat AI assistant and GlobalSearch components
-- `packages/api`: Axios client and typed service wrappers (auth, books, cart, orders, catalog, images, AI)
+- `apps/web`: browser app, route shell, `GlobalSearch`, and the `NestyChat` assistant
 - `packages/pages`: page-level screens for auth, catalog, cart, profile, and admin flows
+- `packages/services`: API client and typed service wrappers for books, auth, cart, orders, AI, and catalog data
 - `packages/ui`: shared UI components
-- `packages/ui-helpers`: route guards such as `PrivateRoute`, `PublicRoute`, and role-based access
-- `packages/utils`: auth/session and client-side helpers
+- `packages/ui-helpers`: route guards and role-based access helpers
+- `packages/utils`: auth/session helpers and browser-safe utilities
 
 ## Prerequisites
 
 - Node.js `18+`
 - pnpm `9+`
-- BookNest Platform running locally on `http://localhost:8080`
+- A running BookNest backend, usually at `http://localhost:8080`
 
 ## Environment
 
-Create a `.env` file in this directory. The frontend reads `VITE_API_BASE` and automatically appends `/api/v1` if you provide only the backend origin.
+Create a `.env` file in the repository root.
 
 ```env
 VITE_API_BASE=http://localhost:8080
 ```
 
-Examples:
+`VITE_API_BASE` can point to either:
 
-- `http://localhost:8080` becomes `http://localhost:8080/api/v1`
-- `http://localhost:8080/api/v1` is used as-is
+- the backend origin, such as `http://localhost:8080`
+- the full API base, such as `http://localhost:8080/api/v1`
 
-For production deployments, set `VITE_API_BASE` to the public HTTPS backend origin, for example:
+If you provide only the origin, the frontend appends `/api/v1` automatically.
 
-```env
-VITE_API_BASE=https://api.example.com
-```
+For production, set `VITE_API_BASE` to the public backend origin or API base used by your deployment.
 
-## Install and run
+## Install and Run
 
-From this directory:
+From the repository root:
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-`pnpm dev` runs the monorepo dev pipeline through Turbo. That includes the Vite app plus the workspace packages that are watched with `tsup`.
-
-Default local URLs:
-
-- App: `http://localhost:3000`
-- Compatible backend origins: `http://localhost:8080`
-
-## Available scripts
+Root scripts:
 
 ```bash
 pnpm dev
@@ -60,33 +51,85 @@ pnpm build
 pnpm lint
 pnpm test
 pnpm format
+pnpm check-format
 ```
 
-App-specific commands are also available from `apps/web`:
+App-specific commands:
 
 ```bash
 pnpm --filter @booknest/web dev
 pnpm --filter @booknest/web build
+pnpm --filter @booknest/web preview
 pnpm --filter @booknest/web test
+pnpm --filter @booknest/web lint
 ```
 
-## Deploy
+Shared workspace packages are built with `tsup` and watched automatically during `pnpm dev`.
 
-The web app builds to static files in `apps/web/dist`.
+## Local URLs
+
+- Frontend app: `http://localhost:3000`
+- Backend API: `http://localhost:8080` or `http://localhost:8080/api/v1`
+
+## What the App Includes
+
+- Public auth pages for login, registration, forgot password, reset password, reset success, and email verification
+- Protected user routes for home, books, book detail, cart, orders, and profile
+- Admin routes for catalog management and admin order views
+- Global semantic search from the top navigation for authenticated users
+- NestyChat AI assistant for book discovery and catalog questions
+- Book detail reviews with average rating, review counts, and authenticated review submission
+- Client-side auth session handling with automatic token refresh
+- 401 Unauthorized and 404 Not Found pages
+
+## Routes
+
+The main route shell in `apps/web/src/App.tsx` currently serves:
+
+- `/`
+- `/books`
+- `/books/:id`
+- `/cart`
+- `/orders`
+- `/profile`
+- `/admin/manage`
+- `/admin/books`
+- `/admin/orders`
+- `/login`
+- `/register`
+- `/forgot-password`
+- `/reset-password`
+- `/reset-successful`
+- `/verify-email`
+- `/unauthorized`
+
+## Backend Contract
+
+The frontend expects the backend under `/api/v1` with these route groups:
+
+- Auth: `/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/forgot-password`, `/auth/reset-password/confirm`, `/auth/verify-email`, `/auth/resend-email-verification`, `/auth/verify-mobile`, `/auth/resend-mobile-otp`
+- Books: `/books`, `/books/:id`, `/books/search`, `/books/semantic-search`, `/books/filter`, `/books/recommend`, `/books/:id/reviews`
+- Cart: `/cart`, `/cart/items`, `/cart/items/:book_id`, `/cart/clear`
+- Orders: `/orders`, `/orders/checkout`, `/orders/confirm`, `/orders/cancel`, `/admin/orders`, `/admin/orders/status`
+- Catalog: `/authors`, `/categories`, `/publishers`
+- Images: `/images/upload`
+- AI: `/ai/health`, `/ai/chat`, `/ai/chat/history`
+
+The app uses `withCredentials` on API requests, so CORS and cookie settings must be configured correctly on the backend if you rely on cookie-based flows.
+
+## Deployment
+
+The app builds to static files in `apps/web/dist`.
 
 ### Vercel
 
-This repository includes `vercel.json` for the monorepo build and React Router fallback.
-
-Recommended Vercel project settings:
+Recommended settings:
 
 - Root Directory: repository root
 - Install Command: `pnpm install --frozen-lockfile`
 - Build Command: `pnpm build`
 - Output Directory: `apps/web/dist`
 - Environment Variable: `VITE_API_BASE=https://your-backend-domain`
-
-After connecting the Git repository in Vercel, set `VITE_API_BASE` in the project environment variables for Production, Preview, and Development as needed, then deploy.
 
 ### Amazon S3
 
@@ -97,71 +140,18 @@ pnpm install --frozen-lockfile
 VITE_API_BASE=https://your-backend-domain pnpm build
 ```
 
-Upload the built files:
+Upload the output:
 
 ```bash
 aws s3 sync apps/web/dist s3://your-bucket-name --delete
 ```
 
-For a plain S3 static website, enable static website hosting and set both the index document and error document to `index.html` so client-side routes can load after refreshes.
+For client-side routing, configure the bucket or CDN so unknown routes fall back to `index.html`.
 
-For a production domain, put CloudFront in front of the bucket and configure custom error responses for `403` and `404` to return `/index.html` with status `200`. Also attach an ACM certificate and point DNS at the CloudFront distribution.
+## Recommended Workflow
 
-Before going live, make sure the backend allows CORS from the deployed frontend origin and supports credentials if cookie-based flows are used.
-
-## Application behavior
-
-The app currently includes:
-
-- Public auth pages for login, registration, forgot password, reset password, and reset success
-- Email verification page for confirming account email addresses
-- Protected user routes for home, books, book detail, cart, orders, and profile
-- Admin-only routes for catalog management and admin order views
-- GlobalSearch component for semantic full-text book search from the navigation bar
-- NestyChat AI assistant for book discovery and recommendations, available to authenticated users
-- Book detail reviews with rating summaries and authenticated review submission
-- Token refresh support through `/auth/refresh`, with a legacy fallback to `/refresh`
-- 404 Not Found and 401 Unauthorized error pages
-
-Authentication state is stored client-side and attached to API requests through the shared Axios client in `packages/api`.
-
-Review behavior:
-
-- The book detail page loads reviews from the backend and shows average rating plus review count.
-- Readers can submit or update a review from the book detail page.
-- The backend only accepts reviews from users who have completed a purchase of that book.
-
-NestyChat behavior:
-
-- Opens as a floating chat panel available on all authenticated pages.
-- Conversation history is persisted per user on the backend and reloaded on login.
-- Nesty answers questions about books, genres, authors, and catalog contents.
-
-## Backend contract
-
-This app expects the backend API under `/api/v1` with these route groups:
-
-- Auth: `/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/forgot-password`, `/auth/reset-password/confirm`, `/auth/verify-email`, `/auth/resend-email-verification`, `/auth/verify-mobile`, `/auth/resend-mobile-otp`
-- Books: `/books`, `/books/:id`, `/books/search`, `/books/semantic-search`, `/books/filter`, `/books/recommend`, `/books/:id/reviews`
-- Cart: `/cart`, `/cart/items`, `/cart/items/:book_id`, `/cart/clear`
-- Orders: `/orders`, `/orders/checkout`, `/orders/confirm`, `/orders/cancel`, `/admin/orders`, `/admin/orders/status`
-- Catalog: `/authors`, `/categories`, `/publishers`
-- Images: `/images/upload`
-- AI: `/ai/health`, `/ai/chat`, `/ai/chat/history`
-
-If the platform server is not running or CORS is not configured for the frontend origin, login and data-loading flows will fail immediately.
-
-## Workspace notes
-
-- The workspace is declared in [`pnpm-workspace.yaml`](./pnpm-workspace.yaml)
-- Root scripts use Turbo to coordinate package builds and tests
-- Shared packages such as `@booknest/pages`, `@booknest/ui`, `@booknest/ui-helpers`, and `@booknest/utils` build through `tsup`
-
-## Recommended local workflow
-
-1. Start the platform backend first.
-2. Confirm `VITE_API_BASE` points at that backend.
-3. Run `pnpm dev` from this repository.
-4. Sign in with a seeded or manually created user.
-5. Use an admin account as well if you want to verify `/admin/manage` and `/admin/orders`.
-6. Test the NestyChat assistant and GlobalSearch with a running AI-configured backend.
+1. Start the backend first.
+2. Set `VITE_API_BASE` to match that backend.
+3. Run `pnpm dev` from the repository root.
+4. Sign in with a test user or admin account.
+5. Verify search, cart, reviews, and NestyChat against a running backend.
