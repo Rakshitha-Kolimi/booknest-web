@@ -12,7 +12,7 @@ export function getApiBaseUrl(): string {
 
 export function getBackendHealthUrl(): string {
   try {
-    return new URL('/health', normalizedBaseURL).toString()
+    return new URL('/system/status', normalizedBaseURL).toString()
   } catch {
     return `${normalizedBaseURL.replace(/\/api\/v1$/, '')}/health`
   }
