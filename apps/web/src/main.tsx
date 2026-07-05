@@ -6,13 +6,16 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 
 import App from './App'
+import { BackendGate } from './components/BackendGate'
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BookNestQueryProvider>
       <PageTitleProvider defaultTitle="BookNest">
         <BrowserRouter>
-          <App />
+          <BackendGate>
+            <App />
+          </BackendGate>
         </BrowserRouter>
       </PageTitleProvider>
     </BookNestQueryProvider>

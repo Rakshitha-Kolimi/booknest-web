@@ -1,13 +1,9 @@
 import { clearAuthSession, safeLocalStorage } from '@booknest/utils'
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
-const API_VERSION_PREFIX = '/api/v1'
-const configuredBaseURL =
-  import.meta.env.VITE_API_BASE || 'http://localhost:8080'
-const normalizedBaseURL = configuredBaseURL.replace(/\/+$/, '')
-const baseURL = normalizedBaseURL.endsWith(API_VERSION_PREFIX)
-  ? normalizedBaseURL
-  : `${normalizedBaseURL}${API_VERSION_PREFIX}`
+import { getApiBaseUrl } from './backendUrl'
+
+const baseURL = getApiBaseUrl()
 
 const client = axios.create({
   baseURL,
