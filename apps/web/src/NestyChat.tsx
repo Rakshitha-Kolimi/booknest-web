@@ -361,9 +361,8 @@ export function NestyChat(): React.ReactElement {
                           )}
                           <div className="nesty-ref-info">
                             <p className="nesty-ref-name">{book.name}</p>
-                            <p className="nesty-ref-price">
-                              ${(book.price / 100).toFixed(2)}
-                            </p>
+                            <p className="nesty-ref-price">₹{book.price}</p>
+
                           </div>
                         </button>
                       ))}
