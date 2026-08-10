@@ -3,8 +3,8 @@ FROM node:lts-alpine AS builder
 ## Working directory: everything works from here
 WORKDIR /app
 
-## install pnpm
-RUN npm install -g pnpm
+## Install the pnpm version pinned by packageManager so frozen-lockfile stays stable
+RUN npm install -g pnpm@9.0.0
 
 ## Copy workspace configuration
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
