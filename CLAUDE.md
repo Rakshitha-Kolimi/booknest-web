@@ -19,7 +19,7 @@ Path aliases are declared in `tsconfig.base.json` for all five workspace package
 
 ## Local development
 
-Prereqs: Node 18+, pnpm 9+, and the BookNest Platform backend running on `http://localhost:8080` (CORS must allow the frontend origin and credentials).
+Prereqs: Node 24+, pnpm 9+, and the BookNest Platform backend running on `http://localhost:8080` (CORS must allow the frontend origin and credentials).
 
 ```bash
 pnpm install

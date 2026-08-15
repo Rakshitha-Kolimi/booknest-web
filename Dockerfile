@@ -1,4 +1,4 @@
-FROM node:lts-alpine AS builder
+FROM node:24-alpine AS builder
 
 ## Working directory: everything works from here
 WORKDIR /app

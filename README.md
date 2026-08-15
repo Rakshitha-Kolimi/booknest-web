@@ -13,7 +13,7 @@ BookNest Web is the React + TypeScript frontend for the BookNest bookstore platf
 
 ## Prerequisites
 
-- Node.js `18+`
+- Node.js `24+`
 - pnpm `9+`
 - A running BookNest backend, usually at `http://localhost:8080`
 

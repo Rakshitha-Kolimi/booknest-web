@@ -7,6 +7,8 @@ on:
 jobs:
   format:
     runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: 24
 
     permissions:
       contents: read
@@ -16,10 +18,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install pnpm
