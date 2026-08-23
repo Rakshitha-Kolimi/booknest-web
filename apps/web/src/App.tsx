@@ -1,4 +1,5 @@
 import {
+  AboutMe,
   AdminBooks,
   AdminOrders,
   BookDetail,
@@ -71,12 +72,15 @@ export default function App() {
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4">
             <Header />
             {isAuthenticated && <GlobalSearch />}
-            <nav className="flex items-center gap-4">
+            <nav className="flex flex-wrap items-center justify-end gap-2 sm:gap-4">
               <NavLink to="/" className="app-link">
                 Home
               </NavLink>
               <NavLink to="/books" className="app-link">
                 Books
+              </NavLink>
+              <NavLink to="/about-me" className="app-link">
+                About Me
               </NavLink>
               {isAuthenticated && role === 'ADMIN' ? (
                 <>
@@ -161,6 +165,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/books" element={<Books />} />
             <Route path="/books/:id" element={<BookDetail />} />
+            <Route path="/about-me" element={<AboutMe />} />
             <Route
               path="/cart"
               element={

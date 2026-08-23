@@ -1,4 +1,5 @@
 export { default as AdminBooks } from './app/AdminBooks'
+export { default as AboutMe } from './app/AboutMe'
 export { default as AdminOrders } from './app/AdminOrders'
 export { default as BookDetail } from './app/BookDetail'
 export { default as Books } from './app/Books'

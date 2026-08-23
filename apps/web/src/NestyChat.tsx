@@ -26,6 +26,8 @@ const WELCOME: Message = {
   text: "Hi! I'm **Nesty**, your BookNest assistant. Ask me anything about books — recommendations, genres, authors, or what's in our catalog!",
 }
 
+export const OPEN_NESTY_EVENT = 'booknest:open-nesty'
+
 function parseMarkdownBlocks(text: string): MarkdownBlock[] {
   const lines = text.replace(/\r\n/g, '\n').split('\n')
   const blocks: MarkdownBlock[] = []
@@ -214,6 +216,16 @@ export function NestyChat(): React.ReactElement {
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const openNesty = () => setOpen(true)
+
+    window.addEventListener(OPEN_NESTY_EVENT, openNesty)
+
+    return () => {
+      window.removeEventListener(OPEN_NESTY_EVENT, openNesty)
+    }
+  }, [])
 
   useEffect(() => {
     if (open) {
